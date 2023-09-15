@@ -150,16 +150,20 @@ def receive_webhook():
             print("[*] Media already processed!.")
             return
         
-        if(is_file_available(full_file_no_ext + ".audio.wav") == False):
-            # Produce audio file
-            prod_audio(full_file, full_file_no_ext + ".audio.wav")
+
         if (is_file_available(full_file_no_ext + "." + src_language + ".srt") and is_file_available(full_file_no_ext + "." + target_languge + "-auto-" + subtitle_custom_ext + ".srt") == False):
             # Translate existing subtitle
             translate(full_file_no_ext + "." + src_language + ".srt" , full_file_no_ext + "." + target_languge + "-auto-" + subtitle_custom_ext + ".srt")
-        if(is_file_available(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt") == False and is_file_available(full_file_no_ext + ".audio.wav")):
+
+        if(is_file_available(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt") == False):
+
+            if(is_file_available(full_file_no_ext + ".audio.wav") == False):
+                # Produce audio file
+                prod_audio(full_file, full_file_no_ext + ".audio.wav")
             # Create subtitle
             prod_subtitle(full_path, full_file_no_ext + "." + src_language + "-auto-" + model + ".srt" , full_file_no_ext + ".audio.wav" )
-        if (is_file_available(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt") and is_file_available(full_file_no_ext + "." + target_languge + "-auto-" + model + ".srt") == False):
+
+        if (is_file_available(full_file_no_ext + "." + target_languge + "-auto-" + model + ".srt") == False):
             # Translate created subtitle
             translate(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt" , full_file_no_ext + "." + target_languge + "-auto-" + model + ".srt")
     # else:
