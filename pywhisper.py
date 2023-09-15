@@ -50,7 +50,7 @@ def prod_subtitle(full_path, subtitle_file, audio_file):
 
     result = loaded_model.transcribe(audio_file,verbose=True, word_timestamps=True)
     writer = get_writer("srt", full_path)
-    writer = (result, subtitle_file, {"max_line_width":50, "max_line_count":2, "highlight_words":False} )
+    writer(result, subtitle_file, {"max_line_width":50, "max_line_count":2, "highlight_words":False} )
     # print(result["text"])
     return
 
@@ -123,8 +123,8 @@ def translate(src_full, dst_full):
 
 def is_media_processed(full_file_no_ext):
     if(is_file_available(full_file_no_ext + "." + target_languge + "-auto.srt")):
-        if(is_file_available(full_file_no_ext + "." + model + "." + src_language + "-auto.srt")):
-            if(is_file_available(full_file_no_ext + "." + model + "." + target_languge + "-auto.srt")):
+        if(is_file_available(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt")):
+            if(is_file_available(full_file_no_ext + "." + target_languge + "-auto-" + model + ".srt")):
                 return True
     return False
 
@@ -146,13 +146,17 @@ def receive_webhook():
             return
         
         if(is_file_available(full_file_no_ext + ".audio.wav") == False):
+            # Produce audio file
             prod_audio(full_file, full_file_no_ext + ".audio.wav")
         if (is_file_available(full_file_no_ext + "." + src_language + ".srt") and is_file_available(full_file_no_ext + "." + target_languge + "-auto-" + subtitle_custom_ext + ".srt") == False):
+            # Translate existing subtitle
             translate(full_file_no_ext + "." + src_language + ".srt" , full_file_no_ext + "." + target_languge + "-auto-" + subtitle_custom_ext + ".srt")
         if(is_file_available(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt") == False and is_file_available(full_file_no_ext + ".audio.wav")):
+            # Create subtitle
             prod_subtitle(full_path, full_file_no_ext + "." + src_language + "-auto-" + model + ".srt" , full_file_no_ext + ".audio.wav" )
-        if (is_file_available(full_file_no_ext + "." + target_languge + "-auto.srt")):
-            translate(full_file_no_ext + "." + src_language + "-auto.srt" , full_file_no_ext + "." + target_languge + "-auto.srt")
+        if (is_file_available(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt") and is_file_available(full_file_no_ext + "." + target_languge + "-auto-" + model + ".srt") == False):
+            # Translate created subtitle
+            translate(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt" + "." + target_languge + "-auto-" + model + ".srt")
 
     return ""
 
