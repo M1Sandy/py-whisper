@@ -23,8 +23,8 @@ def prod_audio(video_file, output_file):
 
 def prod_subtitle(full_path, subtitle_file, audio_file):
 
-    devices = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") 
-    loaded_model = whisper.load_model(model , device =devices)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") 
+    loaded_model = whisper.load_model(model , device=device)
 
     if torch.cuda.is_available():
         print("[*] Using: GPU!")
