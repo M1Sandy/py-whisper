@@ -156,7 +156,7 @@ def receive_webhook():
             prod_subtitle(full_path, full_file_no_ext + "." + src_language + "-auto-" + model + ".srt" , full_file_no_ext + ".audio.wav" )
         if (is_file_available(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt") and is_file_available(full_file_no_ext + "." + target_languge + "-auto-" + model + ".srt") == False):
             # Translate created subtitle
-            translate(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt" + "." + target_languge + "-auto-" + model + ".srt")
+            translate(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt" , full_file_no_ext + "." + target_languge + "-auto-" + model + ".srt")
 
     return ""
 
