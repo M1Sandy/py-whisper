@@ -15,6 +15,7 @@ app = Flask(__name__)
 lt = LibreTranslateAPI(libretranslate)
 
 def prod_audio(video_file, output_file):
+    print("[*] Extracting audio from '" + video_file +"' ")
     command = "ffmpeg -y -i \"{}\" -ar 16000 -ac 1 -c:a pcm_s16le \"{}\"".format(
         video_file, output_file)
     # print("Command: " + command)
@@ -22,7 +23,7 @@ def prod_audio(video_file, output_file):
 
 
 def prod_subtitle(full_path, subtitle_file, audio_file):
-
+    print("[*] Whisper land!")
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") 
     loaded_model = whisper.load_model(model , device=device)
 
@@ -47,7 +48,7 @@ def prod_subtitle(full_path, subtitle_file, audio_file):
     options = whisper.DecodingOptions(language="en", without_timestamps=False, fp16 = False)
     result = whisper.decode(loaded_model, mel, options)
     # print(result.text)
-
+    print("[+] Transcribing '" + audio_file + "'")
     result = loaded_model.transcribe(audio_file,verbose=True, word_timestamps=True)
     writer = get_writer("srt", full_path)
     writer(result, subtitle_file, {"max_line_width":50, "max_line_count":2, "highlight_words":False} )
@@ -56,6 +57,7 @@ def prod_subtitle(full_path, subtitle_file, audio_file):
 
 def is_file_available(file_name):
     if(os.path.isfile(file_name)):
+        print("[*] File '" + file_name + "' is available!")
         return True
     else:
         return False
@@ -65,14 +67,14 @@ def translate(src_full, dst_full):
     buff = ""
     count = 0 
     try:
-        src_file = open(src_full, 'r')
+        src_file = open(src_full, 'r+', encoding='utf-8')
     except Exception as e:
         print("[-] [{}] Could not be opened!".format(src_full))
         return
     total_lines = len(src_file.readlines())
     src_file.seek(0)
-
-    with Bar('Translating',max = total_lines) as bar:
+    print("[*] Translate '" + src_full + "' file")
+    with Bar('[+] Translating',max = total_lines) as bar:
         for line in src_file:
             line_translated = ""
             count += 1
@@ -116,6 +118,7 @@ def translate(src_full, dst_full):
         dst_file_handle = open(dst_full,'w',encoding='utf-8')
     else:
         dst_file_handle = open(dst_full,'w')
+    print("[+] Writing to " + dst_full)
     dst_file_handle.write(buff)
     dst_file_handle.close()
 
@@ -131,12 +134,14 @@ def is_media_processed(full_file_no_ext):
 
 @app.route("/webhook", methods=["POST"])
 def receive_webhook():
+    print("[*] Webhook received! ")
     event = ""
     if request.headers.get("source") == "Tautulli":
+        print("[+] Tautulli Webhook")
         event = request.json.get("event")
 
     if ((event == "library.new" or event == "added")) or ((event == "media.play" or event == "played")):
-        print("[*] Webhook received!")
+        print("[*] Action was '" + event + "'")
         full_file = request.json.get("file")
         full_file_no_ext = os.path.dirname(full_file) + "\\" + pathlib.Path(full_file).name.replace(pathlib.Path(full_file).suffix, "")
         full_path = os.path.dirname(full_file)
@@ -157,7 +162,8 @@ def receive_webhook():
         if (is_file_available(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt") and is_file_available(full_file_no_ext + "." + target_languge + "-auto-" + model + ".srt") == False):
             # Translate created subtitle
             translate(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt" , full_file_no_ext + "." + target_languge + "-auto-" + model + ".srt")
-
+    # else:
+    #     print("[-] Weird Webhook '" + str(request.headers) + "', Ignoring . . .")
     return ""
 
 if __name__ == "__main__":
