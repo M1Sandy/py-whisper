@@ -6,3 +6,4 @@ target_languge = "ar"   # target lang to translate to after whisper produce its 
 src_language = "en"     
 subtitle_custom_ext = "sandy"   # this to generate multiple vers of the subtitle
 whisper_verbose = False
+list_of_audio_lang = ["en","ar","tr","it","es","ko","ur"]

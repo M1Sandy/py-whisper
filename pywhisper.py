@@ -34,6 +34,12 @@ def prod_audio(video_file, output_file):
     # print("Command: " + command)
     subprocess.call(command, shell=True)
 
+def is_wanted_language(lang):
+    for i in list_of_audio_lang:
+        if(lang == i):
+            return True
+    return False
+
 
 def prod_subtitle(full_path, subtitle_file, audio_file):
     print("[*] Whisper land!")
@@ -56,14 +62,13 @@ def prod_subtitle(full_path, subtitle_file, audio_file):
     mel = whisper.log_mel_spectrogram(audio).to(loaded_model.device)
 
     _, probs = loaded_model.detect_language(mel)
-    print(f"[*] Detected language: {max(probs, key=probs.get)}")
+    lang = max(probs, key=probs.get)
+    print(f"[*] Detected language: {lang}")
 
-    if(max(probs, key=probs.get) != "en" or max(probs, key=probs.get) != "it" or max(probs, key=probs.get) != "es" or max(probs, key=probs.get) != "ko" or max(probs, key=probs.get) != "ar" or max(probs, key=probs.get) != "tr" or max(probs, key=probs.get) != "ur"):
+    if(is_wanted_language(lang) == False):
         print("[-] This is weird, check '" + audio_file + "' ")
         lang = input("Enter code of this audio: ")
-        # return
-    else:
-        lang = max(probs, key=probs.get)
+
 
     options = whisper.DecodingOptions(language="en", without_timestamps=False, fp16 = False)
     result = whisper.decode(loaded_model, mel, options)
@@ -91,6 +96,7 @@ def prod_subtitle(full_path, subtitle_file, audio_file):
     result = loaded_model.transcribe(audio_file,verbose=whisper_verbose, word_timestamps=True, language=lang)
     writer = get_writer("srt", full_path)
     writer(result, subtitle_file, {"max_line_width":50, "max_line_count":2, "highlight_words":False} )
+    print("[+] Transcribe process done + subtitle written to '{}'".format(subtitle_file))
     # print(result["text"])
     return
 
