@@ -58,6 +58,13 @@ def prod_subtitle(full_path, subtitle_file, audio_file):
     _, probs = loaded_model.detect_language(mel)
     print(f"[*] Detected language: {max(probs, key=probs.get)}")
 
+    if(max(probs, key=probs.get) != "en" or max(probs, key=probs.get) != "it" or max(probs, key=probs.get) != "es" or max(probs, key=probs.get) != "ko" or max(probs, key=probs.get) != "ar" or max(probs, key=probs.get) != "tr" or max(probs, key=probs.get) != "ur"):
+        print("[-] This is weird, check '" + audio_file + "' ")
+        lang = input("Enter code of this audio: ")
+        # return
+    else:
+        lang = max(probs, key=probs.get)
+
     options = whisper.DecodingOptions(language="en", without_timestamps=False, fp16 = False)
     result = whisper.decode(loaded_model, mel, options)
     # print(result.text)
@@ -81,7 +88,7 @@ def prod_subtitle(full_path, subtitle_file, audio_file):
         print("[*] Using CPU, are you sure??[{}]".format(device))
 
     print("[+] Transcribing '" + audio_file + "'")
-    result = loaded_model.transcribe(audio_file,verbose=whisper_verbose, word_timestamps=True)
+    result = loaded_model.transcribe(audio_file,verbose=whisper_verbose, word_timestamps=True, language=lang)
     writer = get_writer("srt", full_path)
     writer(result, subtitle_file, {"max_line_width":50, "max_line_count":2, "highlight_words":False} )
     # print(result["text"])
