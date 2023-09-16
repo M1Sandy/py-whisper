@@ -11,8 +11,21 @@ from libretranslatepy import LibreTranslateAPI
 from progress.bar import Bar
 import re
 
+import time
+import nvidia_smi
+
+
 app = Flask(__name__)
 lt = LibreTranslateAPI(libretranslate)
+
+def get_gpu_util():
+    nvidia_smi.nvmlInit()
+    deviceCount = nvidia_smi.nvmlDeviceGetCount()
+    for i in range(deviceCount):
+        handle = nvidia_smi.nvmlDeviceGetHandleByIndex(i)
+        util = nvidia_smi.nvmlDeviceGetUtilizationRates(handle)
+        # mem = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
+    return util.gpu
 
 def prod_audio(video_file, output_file):
     print("[*] Extracting audio from '" + video_file +"' ")
@@ -48,8 +61,27 @@ def prod_subtitle(full_path, subtitle_file, audio_file):
     options = whisper.DecodingOptions(language="en", without_timestamps=False, fp16 = False)
     result = whisper.decode(loaded_model, mel, options)
     # print(result.text)
+
+    if(device != "CPU"):
+        curr_gpu_util = 0
+        while (True):
+            average_gpu_util = 0
+            for i in range(10):
+                curr_gpu_util = get_gpu_util()
+                average_gpu_util += curr_gpu_util
+                time.sleep(1)
+            average_gpu_util = average_gpu_util / 10
+            if(average_gpu_util < 50):
+                print("[+] GPU has free time, nice!")
+                break
+            else:
+                print("[+] GPU is busy, sleeping")
+                time.sleep(60)
+    else:
+        print("[*] Using CPU, are you sure??[{}]".format(device))
+
     print("[+] Transcribing '" + audio_file + "'")
-    result = loaded_model.transcribe(audio_file,verbose=True, word_timestamps=True)
+    result = loaded_model.transcribe(audio_file,verbose=whisper_verbose, word_timestamps=True)
     writer = get_writer("srt", full_path)
     writer(result, subtitle_file, {"max_line_width":50, "max_line_count":2, "highlight_words":False} )
     # print(result["text"])
