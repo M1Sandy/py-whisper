@@ -70,7 +70,7 @@ def prod_subtitle(full_path, subtitle_file, audio_file):
         lang = input("Enter code of this audio: ")
 
 
-    options = whisper.DecodingOptions(language="en", without_timestamps=False, fp16 = False)
+    options = whisper.DecodingOptions(language=lang, without_timestamps=False, fp16 = False)
     result = whisper.decode(loaded_model, mel, options)
     # print(result.text)
 
