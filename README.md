@@ -3,7 +3,7 @@
 ## requirements:
 - **openai-whisper**
 - torch
-- Cuda for GPU support  (Nvidia)
+- Cuda for GPU support  (nVidia)
 
 
 
