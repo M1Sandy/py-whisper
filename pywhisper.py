@@ -10,6 +10,7 @@ from whisper.utils import *
 from libretranslatepy import LibreTranslateAPI
 from progress.bar import Bar
 import re
+import random
 
 import time
 import nvidia_smi
@@ -78,17 +79,18 @@ def prod_subtitle(full_path, subtitle_file, audio_file):
         curr_gpu_util = 0
         while (True):
             average_gpu_util = 0
-            for i in range(10):
+            random_average = random.randint(10,50)
+            for i in range(random_average):
                 curr_gpu_util = get_gpu_util()
                 average_gpu_util += curr_gpu_util
-                time.sleep(1)
-            average_gpu_util = average_gpu_util / 10
+                time.sleep(random.randint(3,5))
+            average_gpu_util = average_gpu_util / random_average
             if(average_gpu_util < 50):
                 print("[+] GPU has free time, nice!")
                 break
             else:
                 print("[+] GPU is busy, sleeping")
-                time.sleep(60)
+                time.sleep(random.randint(60,900))
     else:
         print("[*] Using CPU, are you sure??[{}]".format(device))
 
