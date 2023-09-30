@@ -201,6 +201,8 @@ def receive_webhook():
         if (is_file_available(full_file_no_ext + "." + src_language + ".srt") and is_file_available(full_file_no_ext + "." + target_languge + "-auto-" + subtitle_custom_ext + ".srt") == False):
             # Translate existing subtitle
             translate(full_file_no_ext + "." + src_language + ".srt" , full_file_no_ext + "." + target_languge + "-auto-" + subtitle_custom_ext + ".srt")
+        elif (is_file_available(full_file_no_ext + "." + src_language + ".hi.srt") and is_file_available(full_file_no_ext + "." + target_languge + "-auto-" + subtitle_custom_ext + ".srt") == False):
+            translate(full_file_no_ext + "." + src_language + ".hi.srt" , full_file_no_ext + "." + target_languge + "-auto-" + subtitle_custom_ext + ".srt")
 
         if(is_file_available(full_file_no_ext + "." + src_language + "-auto-" + model + ".srt") == False):
 
