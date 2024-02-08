@@ -68,7 +68,10 @@ def prod_subtitle(full_path, subtitle_file, audio_file):
 
     if(is_wanted_language(lang) == False):
         print("[-] This is weird, check '" + audio_file + "' ")
-        lang = input("Enter code of this audio: ")
+        if (audio_file == "zh"):
+            lang = "en"
+        else:
+            lang = input("Enter code of this audio: ")
 
 
     options = whisper.DecodingOptions(language=lang, without_timestamps=False, fp16 = False)
